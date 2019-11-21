@@ -26,7 +26,7 @@ You can press the icons or you can
   
 <img src="Screenshots/Ftp And Amiibo.jpg" alt="drawing" width="800"/> 
 
-Here ends my Readme And starts the Officall uLaunch read.me:
+Here ends my Readme end starts the Officall uLaunch read.me:
 
 uLaunch is a very ambitious project, consisting on two custom library applets, a custom system application and a custom system applet, in order to replace the console's **HOME menu** with a custom, homebrew-orienteed one.
 
