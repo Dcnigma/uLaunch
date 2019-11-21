@@ -4,7 +4,7 @@
 
 I made a mod for myself and everybody that wants to try it.  
 My Switch setup: 
-
+  
 - NS 9.0.1
 - Atmosphere 0.9.4  
 - ULaunch mod 
@@ -26,7 +26,7 @@ You can press the icons or you can
   
 <img src="Screenshots/Ftp And Amiibo.jpg" alt="drawing" width="400"/> 
 
-Here ands my Readme And starts the Officall uLaunch read.me:
+Here ends my Readme And starts the Officall uLaunch read.me:
 
 uLaunch is a very ambitious project, consisting on two custom library applets, a custom system application and a custom system applet, in order to replace the console's **HOME menu** with a custom, homebrew-orienteed one.
 
