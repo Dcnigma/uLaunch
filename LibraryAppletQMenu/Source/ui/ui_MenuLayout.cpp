@@ -56,6 +56,24 @@ namespace ui
         this->logo->SetOnClick(std::bind(&MenuLayout::logo_Click, this));
         qapp->ApplyConfigForElement("main_menu", "logo_icon", this->logo, false); // Sorry theme makers... logo must be visible, but can be moved
         this->Add(this->logo);
+        
+        // add amiibo
+        this->logoamiibo = ClickableImage::New(800, 13 + 35, "romfs:/AmiiboLogo.png");
+        this->logoamiibo->SetWidth(60);
+        this->logoamiibo->SetHeight(60);
+        this->logoamiibo->SetOnClick(std::bind(&MenuLayout::logoamiibo_Click, this));
+        qapp->ApplyConfigForElement("main_menu", "logo_icon_amiibo", this->logoamiibo, false); // Sorry theme makers... logo must be visible, but can be moved
+        this->Add(this->logoamiibo);
+        // add amiibo
+        
+        // add FTPD
+        this->logoFTP = ClickableImage::New(420, 13 + 35, "romfs:/ftpdlogo.png");
+        this->logoFTP->SetWidth(60);
+        this->logoFTP->SetHeight(60);
+        this->logoFTP->SetOnClick(std::bind(&MenuLayout::logoFTP_Click, this));
+        qapp->ApplyConfigForElement("main_menu", "logo_icon_FTD", this->logoFTP, false); // Sorry theme makers... logo must be visible, but can be moved
+        this->Add(this->logoFTP);
+        // add FTPD 
 
         this->connIcon = pu::ui::elm::Image::New(80, 53, cfg::ProcessedThemeResource(theme, "ui/NoConnectionIcon.png"));
         qapp->ApplyConfigForElement("main_menu", "connection_icon", this->connIcon);
@@ -726,6 +744,9 @@ namespace ui
         }
         else if(down & KEY_PLUS) this->logo_Click();
         else if(down & KEY_MINUS) this->menuToggle_Click();
+        else if(down & KEY_RSTICK) this->logoamiibo_Click(); //Quick FTP launch
+        else if(down & KEY_LSTICK) this->logoFTP_Click();    // Quick FTP launch
+
     }
 
     void MenuLayout::SetUser(u128 user)
@@ -751,10 +772,41 @@ namespace ui
 
     void MenuLayout::logo_Click()
     {
-        qapp->CreateShowDialog(cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_about"), "uLaunch v" + std::string(Q_VERSION) + "\n\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_desc") + "\n\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_contribute") + ":\nhttps://github.com/XorTroll/uLaunch", { cfg::GetLanguageString(config.main_lang, config.default_lang, "ok") }, true, "romfs:/LogoLarge.png");
-        // qapp->ShowNotification("(-) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_minus") + "  |  (X) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_x") + " | (Y) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_y") + " | (L), (R), (ZL), (ZR) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_zlr"), 3500);
+      qapp->CreateShowDialog(cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_about"), "uLaunch v" + std::string(Q_VERSION) + cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_desc") + "\n\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "amiibo_mod") +  "\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "amiibo_Github") + "\n\n\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_contribute") + ":\nhttps://github.com/XorTroll/uLaunch", { cfg::GetLanguageString(config.main_lang, config.default_lang, "ok") }, true, "romfs:/LogoLarge.png");
+      qapp->ShowNotification("(-) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_minus") + "  |  (X) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_x") + " | (Y) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_y") + " | (L), (R), (ZL), (ZR) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_zlr"), 3500);
     }
+  void MenuLayout::logoamiibo_Click()
+    {
+      am::QMenuCommandWriter writer(am::QDaemonMessage::LaunchHomebrewLibApplet);
+      hb::TargetInput ipt = {};
+      strcpy(ipt.nro_path, "sdmc:/switch/AmiiSwap/AmiiSwap.nro"); // Launch normal AmiiSwap
+      strcpy(ipt.argv, "sdmc:/switch/AmiiSwap/AmiiSwap.nro");
+      writer.Write<hb::TargetInput>(ipt);
+      writer.FinishWrite();
 
+      pu::audio::Play(this->sfxTitleLaunch);
+      qapp->StopPlayBGM();
+      qapp->CloseWithFadeOut();
+      return;
+
+    }
+//FTPD
+    void MenuLayout::logoFTP_Click()
+    {
+      am::QMenuCommandWriter writer(am::QDaemonMessage::LaunchHomebrewLibApplet);
+      hb::TargetInput ipt = {};
+      strcpy(ipt.nro_path, "sdmc:/switch/FTPD/ftpd.nro"); // Launch normal ftpd
+      strcpy(ipt.argv, "sdmc:/switch/FTPD/ftpd.nro");
+      writer.Write<hb::TargetInput>(ipt);
+      writer.FinishWrite();
+
+      pu::audio::Play(this->sfxTitleLaunch);
+      qapp->StopPlayBGM();
+      qapp->CloseWithFadeOut();
+      return;
+    }
+//FTPD
+    
     void MenuLayout::settings_Click()
     {
         this->HandleSettingsMenu();
