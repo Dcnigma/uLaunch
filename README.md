@@ -3,6 +3,8 @@
 > Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
 
 I made a mod for myself and everybody that wants to try it.  
+Just playing with the code.
+
 My Switch setup: 
   
 - NS 9.0.1
