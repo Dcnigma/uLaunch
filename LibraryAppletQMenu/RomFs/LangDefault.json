@@ -29,6 +29,8 @@
     "app_launch": "Title launch",
     "app_unexpected_error": "A title failed to start, crashed or unexpectedly terminated. (Could it be corrupted? If it is a gamecard title, do you have it inserted?)",
     "ulaunch_about": "About uLaunch",
+    "amiibo_mod":"Amiibo and FTPd mod made by Dcnigma",
+    "amiibo_Github":"https://github.com/Dcnigma/",
     "ulaunch_desc": "uLaunch is a FOSS, extended and homebrew-oriented HOME menu reimplementation.",
     "ulaunch_contribute": "If you would like to contribute, check uLaunch's GitHub repository",
     "control_minus": "Swap the main menu",
