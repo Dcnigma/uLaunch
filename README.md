@@ -24,7 +24,7 @@ You can press the icons or you can
 -press Right tumbstick for FTP  
 -press Left tumbstick for Amiiswap  
   
-<img src="Screenshots/Ftp And Amiibo.jpg" alt="drawing" width="400"/> 
+<img src="Screenshots/Ftp And Amiibo.jpg" alt="drawing" width="800"/> 
 
 Here ends my Readme And starts the Officall uLaunch read.me:
 
