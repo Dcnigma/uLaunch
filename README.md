@@ -24,9 +24,9 @@ You can press the icons or you can
 -press Right tumbstick for FTP  
 -press Left tumbstick for Amiiswap  
   
-<img src="Screenshots/Ftp And Amiibo.jpg" alt="drawing" width="800"/> 
+<img src="Screenshots/s7.jpg" alt="drawing" width="400"/> <img src="Screenshots/s8.jpg" alt="drawing" width="400"/> 
 
-Here ends my Readme end starts the Officall uLaunch read.me:
+Here ends my Readme and starts the Officall uLaunch read.me:
 
 uLaunch is a very ambitious project, consisting on two custom library applets, a custom system application and a custom system applet, in order to replace the console's **HOME menu** with a custom, homebrew-orienteed one.
 
