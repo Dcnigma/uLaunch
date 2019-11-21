@@ -2,11 +2,31 @@
 
 > Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
 
-<img src="Screenshots/s1.png" alt="drawing" width="400"/> <img src="Screenshots/s2.png" alt="drawing" width="400"/>
+I made a mod for myself and everybody that wants to try it.  
+My Switch setup: 
 
-<img src="Screenshots/s3.png" alt="drawing" width="400"/> <img src="Screenshots/s4.png" alt="drawing" width="400"/>
+- NS 9.0.1
+- Atmosphere 0.9.4  
+- ULaunch mod 
+- [Emuiibo 0.3.1](https://github.com/XorTroll/emuiibo/releases)
+- [Amiiswap 1.1b](https://gbatemp.net/threads/amiiswap-mod-for-emuiibo-0-3.548465/)
+- Clean Titles only atmosphere + ulanch and emuiibo
 
-<img src="Screenshots/s5.png" alt="drawing" width="400"/> <img src="Screenshots/s6.png" alt="drawing" width="400"/>
+Folders I used for Amiiswap and FTP are:  
+
+``` 
+  sdmc:/switch/AmiiSwap/AmiiSwap.nro  
+  sdmc:/switch/FTPD/ftpd.nro (please use caps)  
+```
+Otherwise it will not work for you.  
+
+You can press the icons or you can  
+-press Right tumbstick for FTP  
+-press Left tumbstick for Amiiswap  
+  
+<img src="Screenshots/Ftp And Amiibo.jpg" alt="drawing" width="400"/> 
+
+Here ands my Readme And starts the Officall uLaunch read.me:
 
 uLaunch is a very ambitious project, consisting on two custom library applets, a custom system application and a custom system applet, in order to replace the console's **HOME menu** with a custom, homebrew-orienteed one.
 
