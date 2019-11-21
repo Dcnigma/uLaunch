@@ -21,6 +21,8 @@ namespace ui
             void menu_OnSelected(u32 index);
             void menuToggle_Click();
             void logo_Click();
+            void logoamiibo_Click();   //AMIIBO
+            void logoFTP_Click();      //FTPD
             void settings_Click();
             void themes_Click();
             void users_Click();
