@@ -37,32 +37,13 @@ void CommonSleepHandle()
     appletStartSleepSequence(true);
 }
 
-am::QDaemonStatus CreateStatus()
-{
-    am::QDaemonStatus status = {};
-    memcpy(&status.selected_user, &selected_uid, sizeof(selected_uid));
-
-    cfg::TitleType tmptype = cfg::TitleType::Invalid;
-    if(am::ApplicationIsActive())
-    {
-        tmptype = cfg::TitleType::Installed;
-        if(am::ApplicationGetId() == OS_FLOG_APP_ID) tmptype = cfg::TitleType::Homebrew;
-    }
-
-    if(tmptype == cfg::TitleType::Installed) status.app_id = am::ApplicationGetId();
-    else if(tmptype == cfg::TitleType::Homebrew) memcpy(&status.input, &hbapplaunch_copy, sizeof(hbapplaunch_copy));
-
-    return status;
-}
-
 void HandleHomeButton()
 {
     bool used_to_reopen_menu = false;
     if(am::LibraryAppletIsActive() && !am::LibraryAppletIsQMenu())
     {
         am::LibraryAppletTerminate();
-        auto status = CreateStatus();
-        am::QDaemon_LaunchQMenu(am::QMenuStartMode::Menu, status);
+        am::QDaemon_LaunchQMenu(am::QMenuStartMode::Menu);
         return;
     }
     if(am::ApplicationIsActive())
@@ -70,8 +51,7 @@ void HandleHomeButton()
         if(am::ApplicationHasForeground())
         {
             am::HomeMenuSetForeground();
-            auto status = CreateStatus();
-            am::QDaemon_LaunchQMenu(am::QMenuStartMode::MenuApplicationSuspended, status);
+            am::QDaemon_LaunchQMenu(am::QMenuStartMode::MenuApplicationSuspended);
             used_to_reopen_menu = true;
         }
     }
@@ -228,6 +208,27 @@ void HandleQMenuMessage()
 
                     break;
                 }
+                case am::QDaemonMessage::GetSuspendedInfo:
+                {
+                    reader.FinishRead();
+                    
+                    am::QSuspendedInfo info = {};
+                    cfg::TitleType tmptype = cfg::TitleType::Invalid;
+                    if(am::ApplicationIsActive())
+                    {
+                        tmptype = cfg::TitleType::Installed;
+                        if(am::ApplicationGetId() == OS_FLOG_APP_ID) tmptype = cfg::TitleType::Homebrew;
+                    }
+
+                    if(tmptype == cfg::TitleType::Installed) info.app_id = am::ApplicationGetId();
+                    else if(tmptype == cfg::TitleType::Homebrew) memcpy(&info.input, &hbapplaunch_copy, sizeof(hbapplaunch_copy));
+
+                    am::QDaemonCommandResultWriter writer(0);
+                    writer.Write<am::QSuspendedInfo>(info);
+                    writer.FinishWrite();
+
+                    break;
+                }
                 case am::QDaemonMessage::LaunchHomebrewLibApplet:
                 {
                     hblaunch_flag = reader.Read<hb::TargetInput>();
@@ -365,12 +366,10 @@ namespace qdaemon
         
         db::Mount(); // Keep qlaunch's savedata always mounted to avoid others to access it.
         fs::CreateDirectory(Q_BASE_DB_DIR);
-        db::Commit();
         fs::CreateDirectory(Q_BASE_SD_DIR);
         fs::CreateDirectory(Q_ENTRIES_PATH);
         fs::CreateDirectory(Q_THEMES_PATH);
         fs::CreateDirectory(Q_BASE_DB_DIR "/user");
-        db::Commit();
         fs::CreateDirectory(Q_BASE_SD_DIR "/title");
         fs::CreateDirectory(Q_BASE_SD_DIR "/user");
         fs::CreateDirectory(Q_BASE_SD_DIR "/nro");
@@ -449,9 +448,9 @@ namespace qdaemon
 
         while(true)
         {
+            appletUpdateLastForegroundCaptureImage();
             bool flag;
             appletGetLastForegroundCaptureImageEx(usbbuf, RawRGBAScreenBufferSize, &flag);
-            appletUpdateLastForegroundCaptureImage();
             usbCommsWrite(usbbuf, RawRGBAScreenBufferSize);
         }
         
@@ -485,8 +484,7 @@ int main()
     auto config = cfg::EnsureConfig();
     if(config.viewer_usb_enabled) qdaemon::LaunchForegroundThread();
 
-    auto status = CreateStatus();
-    am::QDaemon_LaunchQMenu(am::QMenuStartMode::StartupScreen, status);
+    am::QDaemon_LaunchQMenu(am::QMenuStartMode::StartupScreen);
 
     while(true)
     {
@@ -504,8 +502,7 @@ int main()
                 if(!am::LibraryAppletIsActive())
                 {
                     // Web applet failed to launch...
-                    auto status = CreateStatus();
-                    am::QDaemon_LaunchQMenu(am::QMenuStartMode::MenuLaunchFailure, status);
+                    am::QDaemon_LaunchQMenu(am::QMenuStartMode::MenuLaunchFailure);
                 }
                 sth_done = true;
                 memset(&webapplet_flag, 0, sizeof(webapplet_flag));
@@ -544,12 +541,9 @@ int main()
             {
                 case am::QHbTargetAppletId:
                 case AppletId_web:
-                {
-                    auto status = CreateStatus();
-                    am::QDaemon_LaunchQMenu(am::QMenuStartMode::Menu, status);
+                    am::QDaemon_LaunchQMenu(am::QMenuStartMode::Menu);
                     sth_done = true;
                     break;
-                }
                 default:
                     break;
             }
@@ -560,8 +554,7 @@ int main()
             // No matter what is it, we reopen QMenu in launch-error mode.
             if(!am::ApplicationIsActive() && !am::LibraryAppletIsActive())
             {
-                auto status = CreateStatus();
-                am::QDaemon_LaunchQMenu(am::QMenuStartMode::MenuLaunchFailure, status);
+                am::QDaemon_LaunchQMenu(am::QMenuStartMode::MenuLaunchFailure);
             }
         }
         svcSleepThread(10'000'000);

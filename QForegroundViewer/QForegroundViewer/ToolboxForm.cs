@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
+
 namespace QForegroundViewer
 {
     public partial class ToolboxForm : Form
@@ -22,13 +24,24 @@ namespace QForegroundViewer
             IncrementNumeric.Minimum = 0.1m;
             IncrementNumeric.Value = 1.0m;
         }
-
-        private void AboutButton_Click(object sender, EventArgs e)
-        {
-            var resp = MessageBox.Show("uLaunch is a custom reimplementation of Nintendo Switch's HOME menu.\n\nWould you like to visit our GitHub page?", "About uLaunch project", MessageBoxButtons.OKCancel);
-            if(resp == DialogResult.OK) Process.Start("https://github.com/XorTroll/uLaunch");
-        }
-
+//WRONG!!! Changed to load Amiibo
+//        private void AboutButton_Click(object sender, EventArgs e)
+//        {
+//          reboot_payload("/atmosphere/reboot_payload.bin");
+//          break;
+//        }
+//       private void AmiiboButton_Click(object sender, EventArgs e)
+//        {
+//          reboot_payload("/atmosphere/reboot_payload.bin");
+//          break;
+//        }
+//WRONG!!!
+//Backup
+private void AboutButton_Click(object sender, EventArgs e)
+{
+    var resp = MessageBox.Show("uLaunch is a custom reimplementation of Nintendo Switch's HOME menu.\n\nWould you like to visit our GitHub page?", "About uLaunch project", MessageBoxButtons.OKCancel);
+    if(resp == DialogResult.OK) Process.Start("https://github.com/dcnigma");
+}
         private void ScreenshotButton_Click(object sender, EventArgs e)
         {
             new ScreenshotForm(main).ShowDialog();

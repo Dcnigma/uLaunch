@@ -36,9 +36,9 @@
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IncrementNumeric)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // ScreenshotButton
-            // 
+            //
             this.ScreenshotButton.Location = new System.Drawing.Point(12, 12);
             this.ScreenshotButton.Name = "ScreenshotButton";
             this.ScreenshotButton.Size = new System.Drawing.Size(219, 37);
@@ -46,40 +46,52 @@
             this.ScreenshotButton.Text = "Save screenshot";
             this.ScreenshotButton.UseVisualStyleBackColor = true;
             this.ScreenshotButton.Click += new System.EventHandler(this.ScreenshotButton_Click);
-            // 
-            // AboutButton
-            // 
+            //
+            // AboutButton > AmiiboButton
+            //add Real amiibo later (just a quick hack to get it working with out the about)
+            //
             this.AboutButton.Location = new System.Drawing.Point(12, 393);
             this.AboutButton.Name = "AboutButton";
             this.AboutButton.Size = new System.Drawing.Size(222, 45);
             this.AboutButton.TabIndex = 1;
-            this.AboutButton.Text = "About uLaunch";
+            this.AboutButton.Text = "amiibo";
             this.AboutButton.UseVisualStyleBackColor = true;
             this.AboutButton.Click += new System.EventHandler(this.AboutButton_Click);
-            // 
+            //
+            //WRONG!!!
+            //this.AmiiboButton.Location = new System.Drawing.Point(12, 493);
+            //this.AmiiboButton.Name = "amiiboButton";
+            //this.AmiiboButton.Size = new System.Drawing.Size(222, 45);
+            //this.AboutButton.TabIndex = 2;
+            //this.AmiiboButton.Text = "amiibo";
+            //this.AmiiboButton.UseVisualStyleBackColor = true;
+            //this.AmiiboButton.Click += new System.EventHandler(this.AmiiboButton_Click);
+            //WRONG!!!
             // ResizeButton
-            // 
+            //
             this.ResizeButton.Location = new System.Drawing.Point(6, 67);
             this.ResizeButton.Name = "ResizeButton";
             this.ResizeButton.Size = new System.Drawing.Size(210, 27);
             this.ResizeButton.TabIndex = 2;
+//AmiiboButton WRONG!!!           this.ResizeButton.TabIndex = 3;
             this.ResizeButton.Text = "Resize";
             this.ResizeButton.UseVisualStyleBackColor = true;
             this.ResizeButton.Click += new System.EventHandler(this.ResizeButton_Click);
-            // 
+            //
             // groupBox1
-            // 
+            //
             this.groupBox1.Controls.Add(this.IncrementNumeric);
             this.groupBox1.Controls.Add(this.ResizeButton);
             this.groupBox1.Location = new System.Drawing.Point(12, 78);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(222, 100);
             this.groupBox1.TabIndex = 3;
+//AmiiboButton WRONG!!!           this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Resizing";
-            // 
+            //
             // IncrementNumeric
-            // 
+            //
             this.IncrementNumeric.DecimalPlaces = 1;
             this.IncrementNumeric.Location = new System.Drawing.Point(6, 30);
             this.IncrementNumeric.Maximum = new decimal(new int[] {
@@ -90,9 +102,10 @@
             this.IncrementNumeric.Name = "IncrementNumeric";
             this.IncrementNumeric.Size = new System.Drawing.Size(210, 20);
             this.IncrementNumeric.TabIndex = 3;
-            // 
+//AmiiboButton WRONG!!!?           this.IncrementNumeric.TabIndex = 5;
+            //
             // ToolboxForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(246, 450);

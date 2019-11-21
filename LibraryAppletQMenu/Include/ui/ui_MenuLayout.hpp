@@ -5,7 +5,6 @@
 #include <ui/ui_SideMenu.hpp>
 #include <ui/ui_RawData.hpp>
 #include <ui/ui_ClickableImage.hpp>
-#include <ui/ui_QuickMenu.hpp>
 #include <cfg/cfg_Config.hpp>
 
 namespace ui
@@ -36,8 +35,6 @@ namespace ui
             void HandleWebPageOpen();
             void HandleSettingsMenu();
             void HandleThemesMenu();
-            void HandleControllerAppletOpen();
-            void HandleShowHelp();
             void HandleMultiselectMoveToFolder(std::string folder);
             void StopMultiselect();
         private:
@@ -50,6 +47,10 @@ namespace ui
             ClickableImage::Ref users;
             ClickableImage::Ref web;
             ClickableImage::Ref logo;
+            // added 2 more logo's
+            ClickableImage::Ref logoamiibo;
+            ClickableImage::Ref logoFTP;
+            //
             pu::ui::elm::TextBlock::Ref timeText;
             pu::ui::elm::TextBlock::Ref batteryText;
             pu::ui::elm::Image::Ref batteryIcon;
@@ -63,7 +64,6 @@ namespace ui
             pu::ui::elm::TextBlock::Ref itemVersion;
             pu::ui::elm::Image::Ref bannerImage;
             ClickableImage::Ref menuToggle;
-            QuickMenu::Ref quickMenu;
             std::string curfolder;
             std::chrono::steady_clock::time_point tp;
             bool warnshown;

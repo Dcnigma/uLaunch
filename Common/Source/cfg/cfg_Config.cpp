@@ -565,19 +565,19 @@ namespace cfg
         return title_found;
     }
 
-    TitleList LoadTitleList(bool cache)
+    ResultWith<TitleList> LoadTitleList(bool cache)
     {
         TitleList list = {};
         
         // Installed titles first
-        auto titles = os::QueryInstalledTitles(cache);
+        auto [rc, titles] = os::QueryInstalledTitles(cache);
 
         FS_FOR(std::string(Q_ENTRIES_PATH), name, path,
         {
             auto [rc, entry] = util::LoadJSONFromFile(path);
             if(R_SUCCEEDED(rc))
             {
-                TitleType type = (TitleType)entry.value("type", 0);
+                TitleType type = (TitleType)entry.value("type", 0u);
                 if(type == TitleType::Installed)
                 {
                     std::string appidstr = entry.value("application_id", "");
@@ -632,7 +632,6 @@ namespace cfg
                         rec.author = entry.value("author", "");
                         rec.version = entry.value("version", "");
 
-                        // Only cache homebrew added to main menu.
                         CacheHomebrew(nropath);
                         std::string argv = entry.value("nro_argv", "");
                         strcpy(rec.nro_target.nro_path, nropath.c_str());
@@ -640,7 +639,7 @@ namespace cfg
                         std::string folder = entry.value("folder", "");
                         rec.sub_folder = folder;
                         rec.icon = entry.value("icon", "");
-                        
+                        // Homebrew is cache'd when querying it, so no caching here.
                         if(folder.empty()) list.root.titles.push_back(rec);
                         else
                         {
@@ -664,7 +663,7 @@ namespace cfg
             list.root.titles.push_back(title);
         }
 
-        return list;
+        return SuccessResultWith(list);
     }
 
     std::string GetTitleCacheIconPath(u64 app_id)

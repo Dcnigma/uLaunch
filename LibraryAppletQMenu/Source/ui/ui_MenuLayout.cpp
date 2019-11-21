@@ -9,6 +9,8 @@
 #include <os/os_HomeMenu.hpp>
 #include <fs/fs_Stdio.hpp>
 #include <net/net_Service.hpp>
+//Amibo
+//#include "reboot_payload.h"
 
 extern ui::QMenuApplication::Ref qapp;
 extern cfg::TitleList list;
@@ -56,7 +58,6 @@ namespace ui
         this->logo->SetOnClick(std::bind(&MenuLayout::logo_Click, this));
         qapp->ApplyConfigForElement("main_menu", "logo_icon", this->logo, false); // Sorry theme makers... logo must be visible, but can be moved
         this->Add(this->logo);
-        
         // add amiibo
         this->logoamiibo = ClickableImage::New(800, 13 + 35, "romfs:/AmiiboLogo.png");
         this->logoamiibo->SetWidth(60);
@@ -65,7 +66,6 @@ namespace ui
         qapp->ApplyConfigForElement("main_menu", "logo_icon_amiibo", this->logoamiibo, false); // Sorry theme makers... logo must be visible, but can be moved
         this->Add(this->logoamiibo);
         // add amiibo
-        
         // add FTPD
         this->logoFTP = ClickableImage::New(420, 13 + 35, "romfs:/ftpdlogo.png");
         this->logoFTP->SetWidth(60);
@@ -73,8 +73,7 @@ namespace ui
         this->logoFTP->SetOnClick(std::bind(&MenuLayout::logoFTP_Click, this));
         qapp->ApplyConfigForElement("main_menu", "logo_icon_FTD", this->logoFTP, false); // Sorry theme makers... logo must be visible, but can be moved
         this->Add(this->logoFTP);
-        // add FTPD 
-
+        // add FTPD
         this->connIcon = pu::ui::elm::Image::New(80, 53, cfg::ProcessedThemeResource(theme, "ui/NoConnectionIcon.png"));
         qapp->ApplyConfigForElement("main_menu", "connection_icon", this->connIcon);
         this->Add(this->connIcon);
@@ -140,17 +139,6 @@ namespace ui
         this->itemsMenu->SetOnSelectionChanged(std::bind(&MenuLayout::menu_OnSelected, this, std::placeholders::_1));
         qapp->ApplyConfigForElement("main_menu", "items_menu", this->itemsMenu, false); // Main menu must be visible, and only Y is customizable here
         this->Add(this->itemsMenu);
-
-        this->quickMenu = QuickMenu::New(cfg::ProcessedThemeResource(theme, "ui/QuickMenuMain.png"));
-
-        this->quickMenu->SetEntry(QuickMenuDirection::Down, cfg::ProcessedThemeResource(theme, "ui/QuickMenuSettingsItem.png"), std::bind(&MenuLayout::settings_Click, this));
-        this->quickMenu->SetEntry(QuickMenuDirection::Left, cfg::ProcessedThemeResource(theme, "ui/QuickMenuWebItem.png"), std::bind(&MenuLayout::web_Click, this));
-        this->quickMenu->SetEntry(QuickMenuDirection::Right, cfg::ProcessedThemeResource(theme, "ui/QuickMenuThemesItem.png"), std::bind(&MenuLayout::themes_Click, this));
-        this->quickMenu->SetEntry(QuickMenuDirection::UpLeft, cfg::ProcessedThemeResource(theme, "ui/QuickMenuControllerItem.png"), std::bind(&MenuLayout::HandleControllerAppletOpen, this));
-        this->quickMenu->SetEntry(QuickMenuDirection::DownRight, cfg::ProcessedThemeResource(theme, "ui/QuickMenuHelpItem.png"), std::bind(&MenuLayout::HandleShowHelp, this));
-
-        this->Add(this->quickMenu);
-
         this->tp = std::chrono::steady_clock::now();
 
         this->sfxTitleLaunch = pu::audio::Load(cfg::ProcessedThemeResource(theme, "sound/TitleLaunch.wav"));
@@ -332,7 +320,7 @@ namespace ui
                             bool hblaunch = true;
                             if(qapp->IsHomebrewSuspended())
                             {
-                                if(qapp->EqualsSuspendedHomebrewPath(hb.nro_target.nro_path))
+                                if(std::string(hb.nro_target.nro_path) == qapp->GetSuspendedHomebrewPath())
                                 {
                                     if(this->mode == 1) this->mode = 2;
                                     hblaunch = false;
@@ -350,7 +338,7 @@ namespace ui
                         {
                             if(qapp->IsSuspended())
                             {
-                                if(qapp->EqualsSuspendedHomebrewPath(hb.nro_target.nro_path)) this->HandleCloseSuspended();
+                                if(std::string(hb.nro_target.nro_path) == qapp->GetSuspendedHomebrewPath()) this->HandleCloseSuspended();
                             }
                         }
                         else if(down & KEY_Y)
@@ -390,7 +378,7 @@ namespace ui
                                 {
                                     if((cfg::TitleType)title.title_type == cfg::TitleType::Homebrew)
                                     {
-                                        if(qapp->EqualsSuspendedHomebrewPath(title.nro_target.nro_path))
+                                        if(std::string(title.nro_target.nro_path) == qapp->GetSuspendedHomebrewPath())
                                         {
                                             if(this->mode == 1) this->mode = 2;
                                             titlelaunch = false;
@@ -443,7 +431,7 @@ namespace ui
                                 {
                                     if((cfg::TitleType)title.title_type == cfg::TitleType::Homebrew)
                                     {
-                                        if(qapp->EqualsSuspendedHomebrewPath(title.nro_target.nro_path)) this->HandleCloseSuspended();
+                                        if(std::string(title.nro_target.nro_path) == qapp->GetSuspendedHomebrewPath()) this->HandleCloseSuspended();
                                     }
                                     else
                                     {
@@ -541,7 +529,7 @@ namespace ui
                     this->itemName->SetText(foldr.name);
                     titleidx = -1;
                 }
-                
+
             }
             if(titleidx >= 0)
             {
@@ -604,7 +592,7 @@ namespace ui
             }
             else
             {
-                if(qapp->IsHomebrewSuspended()) if(qapp->EqualsSuspendedHomebrewPath(itm.nro_target.nro_path)) set_susp = true;
+                if(qapp->IsHomebrewSuspended()) if(qapp->GetSuspendedHomebrewPath() == std::string(itm.nro_target.nro_path)) set_susp = true;
             }
             this->itemsMenu->AddItem(cfg::GetRecordIconPath(itm));
             if(set_susp)
@@ -625,10 +613,6 @@ namespace ui
 
     void MenuLayout::OnInput(u64 down, u64 up, u64 held, pu::ui::Touch pos)
     {
-        auto quickon = this->quickMenu->IsOn();
-        this->itemsMenu->SetEnabled(!quickon);
-        if(quickon) return;
-
         bool hasconn = net::HasConnection();
         if(this->last_hasconn != hasconn)
         {
@@ -743,17 +727,18 @@ namespace ui
             if(!this->curfolder.empty()) this->MoveFolder("", true);
         }
         else if(down & KEY_PLUS) this->logo_Click();
-        else if(down & KEY_MINUS) this->menuToggle_Click();
         else if(down & KEY_RSTICK) this->logoamiibo_Click(); //Quick FTP launch
         else if(down & KEY_LSTICK) this->logoFTP_Click();    // Quick FTP launch
-
+        else if(down & KEY_MINUS) this->menuToggle_Click();
+        else if(down & KEY_ZL) this->HandleUserMenu();
+        else if(down & KEY_L) this->HandleWebPageOpen();
+        else if(down & KEY_R) this->HandleSettingsMenu();
+        else if(down & KEY_ZR) this->HandleThemesMenu();
     }
 
     void MenuLayout::SetUser(u128 user)
     {
-        auto path = os::GetIconCacheImagePath(user);
-        this->users->SetImage(path);
-        this->quickMenu->SetEntry(QuickMenuDirection::Up, path, std::bind(&MenuLayout::users_Click, this));
+        this->users->SetImage(os::GetIconCacheImagePath(user));
         this->users->SetWidth(50);
         this->users->SetHeight(50);
     }
@@ -769,13 +754,15 @@ namespace ui
         }
         this->MoveFolder("", true);
     }
-
+//Amiboo click?
     void MenuLayout::logo_Click()
     {
       qapp->CreateShowDialog(cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_about"), "uLaunch v" + std::string(Q_VERSION) + cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_desc") + "\n\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "amiibo_mod") +  "\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "amiibo_Github") + "\n\n\n" + cfg::GetLanguageString(config.main_lang, config.default_lang, "ulaunch_contribute") + ":\nhttps://github.com/XorTroll/uLaunch", { cfg::GetLanguageString(config.main_lang, config.default_lang, "ok") }, true, "romfs:/LogoLarge.png");
       qapp->ShowNotification("(-) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_minus") + "  |  (X) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_x") + " | (Y) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_y") + " | (L), (R), (ZL), (ZR) -> " + cfg::GetLanguageString(config.main_lang, config.default_lang, "control_zlr"), 3500);
+//+ cfg::GetLanguageString(config.main_lang, config.default_lang, "amiibo_mod"), "amiibo_Github v"
     }
-  void MenuLayout::logoamiibo_Click()
+//amibo Click
+    void MenuLayout::logoamiibo_Click()
     {
       am::QMenuCommandWriter writer(am::QDaemonMessage::LaunchHomebrewLibApplet);
       hb::TargetInput ipt = {};
@@ -806,7 +793,6 @@ namespace ui
       return;
     }
 //FTPD
-    
     void MenuLayout::settings_Click()
     {
         this->HandleSettingsMenu();
@@ -908,7 +894,7 @@ namespace ui
     void MenuLayout::HandleUserMenu()
     {
         auto uid = qapp->GetSelectedUser();
-        
+
         am::QMenuCommandWriter writer(am::QDaemonMessage::UserHasPassword);
         writer.Write<u128>(uid);
         writer.FinishWrite();
@@ -1029,7 +1015,7 @@ namespace ui
             *(u32*)in = 7; // Type -> ShowMyProfile
             memcpy((u128*)(in + 0x8), &uid, sizeof(uid));
 
-            am::LibraryAppletQMenuLaunchWithSimple(AppletId_myPage, 1, in, sizeof(in), NULL, 0, [&]() -> bool
+            am::LibraryAppletQMenuLaunchAnd(AppletId_myPage, 1, in, sizeof(in), NULL, 0, [&]() -> bool
             {
                 return !am::QMenuIsHomePressed();
             });
@@ -1086,55 +1072,19 @@ namespace ui
             return;
         }
     }
-    
+
     void MenuLayout::HandleSettingsMenu()
     {
         qapp->FadeOut();
         qapp->LoadSettingsMenu();
         qapp->FadeIn();
     }
-    
+
     void MenuLayout::HandleThemesMenu()
     {
         qapp->FadeOut();
         qapp->LoadThemeMenu();
         qapp->FadeIn();
-    }
-
-    void MenuLayout::HandleControllerAppletOpen()
-    {
-        am::controller::InitialArg arg1 = {};
-        HidControllerType type;
-        hidGetSupportedNpadStyleSet(&type);
-        arg1.controller_type = (u64)type;
-        arg1.this_size = sizeof(arg1);
-        arg1.unk2 = true;
-        arg1.unk3 = true;
-
-        am::controller::MainArg arg2 = {};
-        arg2.min_player_count = 0;
-        arg2.max_player_count = 4;
-        arg2.take_over_connection = true;
-        arg2.left_justify = true;
-
-        am::LibraryAppletQMenuLaunchWith(AppletId_controller, 0,
-        [&](AppletHolder *h)
-        {
-            libappletPushInData(h, &arg1, sizeof(arg1));
-            libappletPushInData(h, &arg2, sizeof(arg2));
-        },
-        [&](AppletHolder *h)
-        {
-        },
-        [&]() -> bool
-        {
-            return !am::QMenuIsHomePressed();
-        });
-    }
-
-    void MenuLayout::HandleShowHelp()
-    {
-        
     }
 
     void MenuLayout::HandleMultiselectMoveToFolder(std::string folder)

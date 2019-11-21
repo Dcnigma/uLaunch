@@ -64,15 +64,10 @@ int main()
     auto [rc, smode] = am::QMenu_ProcessInput();
     if(R_SUCCEEDED(rc))
     {
-        am::QDaemonStatus status = {};
-        
-        // Information block sent as an extra storage to QMenu.
-        am::QLibraryAppletReadStorage(&status, sizeof(status));
-
         app_buf = new u8[RawRGBAScreenBufferSize]();
         qmenu::Initialize();
-        
-        list = cfg::LoadTitleList(true);
+        auto [_rc, menulist] = cfg::LoadTitleList(true);
+        list = menulist;
 
         if(smode != am::QMenuStartMode::Invalid)
         {
@@ -93,7 +88,7 @@ int main()
                 config.main_lang = ljson;
             }
 
-            qapp->SetInformation(smode, status);
+            qapp->SetStartMode(smode);
             qapp->Prepare();
             
             if(smode == am::QMenuStartMode::MenuApplicationSuspended) qapp->Show();
