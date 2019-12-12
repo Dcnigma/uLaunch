@@ -1,7 +1,16 @@
 <img width="200" src="LibraryAppletQMenu/RomFs/LogoLarge.png">
 
-Just made it work under 0.2
+Just made it work under 0.2   
+Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:  
+ 
+            "ftp_icon": {  
+      "x": 40,  
+      "y": 80,  
+      "visible": true  
+    },  
 
+for now you can't change the icon. But will change this in the future ;-)        
+        
 > Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
 
 I made a mod for myself and everybody that wants to try it.  
