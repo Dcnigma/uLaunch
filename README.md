@@ -1,4 +1,8 @@
 <img width="200" src="LibraryAppletQMenu/RomFs/LogoLarge.png">
+> Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
+
+I made a mod for myself and everybody that wants to try it.  
+Just playing with the code.
 
 Just made it work under 0.2   
 <img src="Screenshots/s9.jpg" alt="drawing" width="400"/> <img src="Screenshots/s10.jpg" alt="drawing" width="400"/>   
@@ -15,11 +19,6 @@ Also there is a bug in my version for the album it will load homebrew menu in ap
 <img src="Screenshots/s11.jpg" alt="drawing" width="400"/>   
 But i guess this is part fault in the way I load the apps.
 Need to investigate that more "more research is needed".
-
-> Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
-
-I made a mod for myself and everybody that wants to try it.  
-Just playing with the code.
 
 My Switch setup: 
   
