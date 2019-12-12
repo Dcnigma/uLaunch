@@ -1,5 +1,7 @@
 <img width="200" src="LibraryAppletQMenu/RomFs/LogoLarge.png">
 
+Just made it work under 0.2
+
 > Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
 
 I made a mod for myself and everybody that wants to try it.  
