@@ -9,7 +9,11 @@ Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:
     },  
 
 for now you can't change the icon. But will change this in the future ;-)        
-        
+  
+Also there is a bug in my version for the album it will load homebrew menu in applet mode.
+But i guess this is part fault in the way I load the apps.
+Need to investigate that more "more research is needed".
+
 > Custom, open-source replacement/reimplementation for Nintendo Switch's HOME menu (qlaunch), extending it with amazing, homebrew-orienteed functionality!
 
 I made a mod for myself and everybody that wants to try it.  
