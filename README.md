@@ -9,7 +9,7 @@ Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:
       "y": 80,  
     },  
 
-for now you can't change the icon. But will change this in the future ;-)        
+for now you can't change the icon. But will change in the future ;-)        
   
 Also there is a bug in my version for the album it will load homebrew menu in applet mode.
 <img src="Screenshots/s11.jpg" alt="drawing" width="400"/>   
