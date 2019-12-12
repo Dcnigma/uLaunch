@@ -1,6 +1,7 @@
 <img width="200" src="LibraryAppletQMenu/RomFs/LogoLarge.png">
 
 Just made it work under 0.2   
+<img src="Screenshots/s9.jpg" alt="drawing" width="400"/> <img src="Screenshots/s10.jpg" alt="drawing" width="400"/>   
 Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:  
  
             "ftp_icon": {  
@@ -11,6 +12,7 @@ Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:
 for now you can't change the icon. But will change this in the future ;-)        
   
 Also there is a bug in my version for the album it will load homebrew menu in applet mode.
+<img src="Screenshots/s11.jpg" alt="drawing" width="400"/>   
 But i guess this is part fault in the way I load the apps.
 Need to investigate that more "more research is needed".
 
