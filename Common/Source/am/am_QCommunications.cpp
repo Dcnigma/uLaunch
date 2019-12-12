@@ -28,9 +28,9 @@ namespace am
     
     #define Q_AM_WAIT(expr) Q_AM_WAIT_WITH(rc = (expr);)
 
-    Result QDaemon_LaunchQMenu(QMenuStartMode mode)
+    Result QDaemon_LaunchQMenu(QMenuStartMode mode, QDaemonStatus status)
     {
-        return LibraryAppletStart(QMenuAppletId, (u32)mode, NULL, 0);
+        return LibraryAppletStart(QMenuAppletId, (u32)mode, &status, sizeof(status));
     }
 
     Result QDaemon_LaunchQHbTarget(hb::TargetInput input)
@@ -121,7 +121,6 @@ namespace am
     Result QDaemon_QMenuWriteImpl(void *data, size_t size, bool wait)
     Q_AM_WAIT(LibraryAppletSend(data, size))
     
-
     Result QDaemon_QMenuReadImpl(void *data, size_t size, bool wait)
     Q_AM_WAIT(LibraryAppletRead(data, size))
 

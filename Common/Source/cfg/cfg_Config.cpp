@@ -68,18 +68,35 @@ namespace cfg
 
     std::string GetRecordIconPath(TitleRecord record)
     {
-        std::string icon;
-        if((TitleType)record.title_type == TitleType::Homebrew)
+        std::string icon = record.icon;
+        if(icon.empty())
         {
-            if(!record.icon.empty()) icon = record.icon;
-            else icon = GetNROCacheIconPath(record.nro_target.nro_path);
+            if((TitleType)record.title_type == TitleType::Homebrew) icon = GetNROCacheIconPath(record.nro_target.nro_path);
+            else if((TitleType)record.title_type == TitleType::Installed) icon = GetTitleCacheIconPath(record.app_id);
         }
-        else
-        {
-            if(!record.icon.empty()) icon = record.icon;
-            else icon = GetTitleCacheIconPath(record.app_id);
-        }
+        
         return icon;
+    }
+
+    static void ProcessStringsFromNACP(RecordStrings &strs, NacpStruct *nacp)
+    {
+        NacpLanguageEntry *lent = NULL;
+        nacpGetLanguageEntry(nacp, &lent);
+        if(lent == NULL)
+        {
+            for(u32 i = 0; i < 16; i++)
+            {
+                lent = &nacp->lang[i];
+                if(strlen(lent->name) && strlen(lent->author)) break;
+                lent = NULL;
+            }
+        }
+        if(lent != NULL)
+        {
+            strs.name = lent->name;
+            strs.author = lent->author;
+            strs.version = nacp->version;
+        }
     }
 
     RecordInformation GetRecordInformation(TitleRecord record)
@@ -103,8 +120,12 @@ namespace cfg
                         {
                             if(ahdr.nacp.size > 0)
                             {
+                                NacpStruct nacp = {};
+
                                 fseek(f, hdr.size + ahdr.nacp.offset, SEEK_SET);
-                                fread(&info.nacp, 1, ahdr.nacp.size, f);
+                                fread(&nacp, 1, ahdr.nacp.size, f);
+
+                                ProcessStringsFromNACP(info.strings, &nacp);
                             }
                         }
                     }
@@ -116,34 +137,12 @@ namespace cfg
         {
             NsApplicationControlData cdata = {};
             nsGetApplicationControlData(1, record.app_id, &cdata, sizeof(cdata), NULL);
-            memcpy(&info.nacp, &cdata.nacp, sizeof(cdata.nacp));
+            ProcessStringsFromNACP(info.strings, &cdata.nacp);
         }
-        if(!record.name.empty())
-        {
-            for(u32 i = 0; i < 0x10; i++) strcpy(info.nacp.lang[i].name, record.name.c_str());
-        }
-        if(!record.author.empty())
-        {
-            for(u32 i = 0; i < 0x10; i++) strcpy(info.nacp.lang[i].author, record.author.c_str());
-        }
-        if(!record.version.empty()) strcpy(info.nacp.version, record.version.c_str());
+        if(!record.name.empty()) info.strings.name = record.name;
+        if(!record.author.empty()) info.strings.author = record.author;
+        if(!record.version.empty()) info.strings.version = record.version;
         return info;
-    }
-
-    NacpLanguageEntry *GetRecordInformationLanguageEntry(RecordInformation &info)
-    {
-        NacpLanguageEntry *lent = NULL;
-        nacpGetLanguageEntry(&info.nacp, &lent);
-        if(lent == NULL)
-        {
-            for(u32 i = 0; i < 16; i++)
-            {
-                lent = &info.nacp.lang[i];
-                if(strlen(lent->name) && strlen(lent->author)) break;
-                lent = NULL;
-            }
-        }
-        return lent;
     }
 
     Theme LoadTheme(std::string base_name)
@@ -151,18 +150,20 @@ namespace cfg
         Theme theme = {};
         theme.base_name = base_name;
         auto themedir = std::string(Q_THEMES_PATH) + "/" + base_name;
-        if(base_name.empty()) themedir = CFG_THEME_DEFAULT;
         auto metajson = themedir + "/theme/Manifest.json";
+        if(base_name.empty() || !fs::ExistsFile(metajson)) themedir = CFG_THEME_DEFAULT;
+        metajson = themedir + "/theme/Manifest.json";
         auto [rc, meta] = util::LoadJSONFromFile(metajson);
         if(R_SUCCEEDED(rc))
         {
             theme.manifest.name = meta.value("name", "'" + base_name + "'");
-            theme.manifest.format_version = meta.value("format_version", CurrentThemeFormatVersion);
+            theme.manifest.format_version = meta.value("format_version", 0);
             theme.manifest.release = meta.value("release", "");
             theme.manifest.description = meta.value("description", "");
             theme.manifest.author = meta.value("author", "");
             theme.path = themedir;
         }
+        else return LoadTheme("");
         return theme;
     }
 
@@ -179,39 +180,13 @@ namespace cfg
         return themes;
     }
 
-    std::string ThemeResource(Theme &base, std::string resource_base)
+    std::string GetAssetByTheme(Theme &base, std::string resource_base)
     {
         auto base_res = base.path + "/" + resource_base;
         if(fs::ExistsFile(base_res)) return base_res;
         base_res = std::string(CFG_THEME_DEFAULT) + "/" + resource_base;
         if(fs::ExistsFile(base_res)) return base_res;
         return "";
-    }
-
-    std::string ProcessedThemeResource(ProcessedTheme &base, std::string resource_base)
-    {
-        return ThemeResource(base.base, resource_base);
-    }
-
-    ProcessedTheme ProcessTheme(Theme &base)
-    {
-        ProcessedTheme processed;
-        processed.base = base;
-        auto uijson = ThemeResource(base, "ui/UI.json");
-        auto [rc, ui] = util::LoadJSONFromFile(uijson);
-        if(R_SUCCEEDED(rc))
-        {
-            processed.ui.suspended_final_alpha = ui.value("suspended_final_alpha", 80);
-            auto bgmjson = ThemeResource(base, "sound/BGM.json");
-            auto [rc, bgm] = util::LoadJSONFromFile(bgmjson);
-            if(R_SUCCEEDED(rc))
-            {
-                processed.sound.loop = bgm.value("loop", true);
-                processed.sound.fade_in = bgm.value("fade_in", true);
-                processed.sound.fade_out = bgm.value("fade_in", true);
-            }
-        }
-        return processed;
     }
 
     std::string GetLanguageJSONPath(std::string lang)
@@ -231,6 +206,7 @@ namespace cfg
         Config cfg = {};
         cfg.system_title_override_enabled = false; // Due to ban risk, have it disabled by default.
         cfg.viewer_usb_enabled = false; // Do not enable this by default due to conflicts with USB homebrew
+        cfg.theme_name = ""; // Default theme (none)
         SaveConfig(cfg);
         return cfg;
     }
@@ -244,6 +220,11 @@ namespace cfg
             cfg.theme_name = cfgjson.value("theme_name", "");
             cfg.system_title_override_enabled = cfgjson.value("system_title_override_enabled", false);
             cfg.viewer_usb_enabled = cfgjson.value("viewer_usb_enabled", false);
+        }
+        else
+        {
+            fs::DeleteFile(CFG_CONFIG_JSON);
+            return CreateNewAndLoadConfig();
         }
         return cfg;
     }
@@ -275,6 +256,7 @@ namespace cfg
         if(!record.name.empty()) entry["name"] = record.name;
         if(!record.author.empty()) entry["author"] = record.author;
         if(!record.version.empty()) entry["version"] = record.version;
+        if(!record.icon.empty()) entry["icon"] = record.icon;
 
         // Prepare JSON path
         std::string basepath = Q_ENTRIES_PATH;
@@ -289,7 +271,6 @@ namespace cfg
             {
                 if(strcmp(record.nro_target.nro_path, record.nro_target.argv) != 0) entry["nro_argv"] = record.nro_target.argv;
             }
-            if(!record.icon.empty()) entry["icon"] = record.icon;
         }
         else if((TitleType)record.title_type == TitleType::Installed)
         {
@@ -565,19 +546,19 @@ namespace cfg
         return title_found;
     }
 
-    ResultWith<TitleList> LoadTitleList(bool cache)
+    TitleList LoadTitleList(bool cache)
     {
         TitleList list = {};
         
         // Installed titles first
-        auto [rc, titles] = os::QueryInstalledTitles(cache);
+        auto titles = os::QueryInstalledTitles(cache);
 
         FS_FOR(std::string(Q_ENTRIES_PATH), name, path,
         {
             auto [rc, entry] = util::LoadJSONFromFile(path);
             if(R_SUCCEEDED(rc))
             {
-                TitleType type = (TitleType)entry.value("type", 0u);
+                TitleType type = (TitleType)entry.value("type", 0);
                 if(type == TitleType::Installed)
                 {
                     std::string appidstr = entry.value("application_id", "");
@@ -632,6 +613,7 @@ namespace cfg
                         rec.author = entry.value("author", "");
                         rec.version = entry.value("version", "");
 
+                        // Only cache homebrew added to main menu.
                         CacheHomebrew(nropath);
                         std::string argv = entry.value("nro_argv", "");
                         strcpy(rec.nro_target.nro_path, nropath.c_str());
@@ -639,7 +621,7 @@ namespace cfg
                         std::string folder = entry.value("folder", "");
                         rec.sub_folder = folder;
                         rec.icon = entry.value("icon", "");
-                        // Homebrew is cache'd when querying it, so no caching here.
+                        
                         if(folder.empty()) list.root.titles.push_back(rec);
                         else
                         {
@@ -663,7 +645,7 @@ namespace cfg
             list.root.titles.push_back(title);
         }
 
-        return SuccessResultWith(list);
+        return list;
     }
 
     std::string GetTitleCacheIconPath(u64 app_id)

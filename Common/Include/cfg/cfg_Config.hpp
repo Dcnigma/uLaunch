@@ -49,18 +49,6 @@ namespace cfg
         std::string author;
     };
 
-    struct UIConfig
-    {
-        u8 suspended_final_alpha;
-    };
-
-    struct SoundConfig
-    {
-        bool loop;
-        bool fade_in;
-        bool fade_out;
-    };
-
     struct Theme
     {
         std::string base_name;
@@ -68,16 +56,16 @@ namespace cfg
         ThemeManifest manifest;
     };
 
-    struct ProcessedTheme
+    struct RecordStrings
     {
-        Theme base;
-        UIConfig ui;
-        SoundConfig sound;
+        std::string name;
+        std::string author;
+        std::string version;
     };
 
     struct RecordInformation
     {
-        NacpStruct nacp;
+        RecordStrings strings;
         std::string icon_path;
     };
 
@@ -91,23 +79,25 @@ namespace cfg
         JSON default_lang;
     };
 
-    static constexpr u32 CurrentThemeFormatVersion = 0;
+    static constexpr u32 CurrentThemeFormatVersion = 1;
 
     #define CFG_THEME_DEFAULT "romfs:/default"
     #define CFG_LANG_DEFAULT "romfs:/LangDefault.json"
     #define CFG_CONFIG_JSON Q_BASE_SD_DIR "/config.json"
 
-    ResultWith<TitleList> LoadTitleList(bool cache);
+    TitleList LoadTitleList(bool cache);
     std::vector<TitleRecord> QueryAllHomebrew(std::string base = "sdmc:/switch");
     std::string GetRecordIconPath(TitleRecord record);
     RecordInformation GetRecordInformation(TitleRecord record);
-    NacpLanguageEntry *GetRecordInformationLanguageEntry(RecordInformation &info);
 
     Theme LoadTheme(std::string base_name);
     std::vector<Theme> LoadThemes();
-    std::string ThemeResource(Theme &base, std::string resource_base);
-    std::string ProcessedThemeResource(ProcessedTheme &base, std::string resource_base);
-    ProcessedTheme ProcessTheme(Theme &base);
+    std::string GetAssetByTheme(Theme &base, std::string resource_base);
+
+    inline bool ThemeIsDefault(Theme &base)
+    {
+        return base.base_name.empty();
+    }
 
     std::string GetLanguageJSONPath(std::string lang);
     std::string GetLanguageString(JSON &lang, JSON &def, std::string name);
