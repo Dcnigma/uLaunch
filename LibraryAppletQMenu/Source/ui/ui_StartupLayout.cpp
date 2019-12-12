@@ -5,14 +5,14 @@
 #include <fs/fs_Stdio.hpp>
 
 extern ui::QMenuApplication::Ref qapp;
-extern cfg::ProcessedTheme theme;
+extern cfg::Theme theme;
 extern cfg::Config config;
 
 namespace ui
 {
     StartupLayout::StartupLayout()
     {
-        this->SetBackgroundImage(cfg::ProcessedThemeResource(theme, "ui/Background.png"));
+        this->SetBackgroundImage(cfg::GetAssetByTheme(theme, "ui/Background.png"));
         this->loadmenu = false;
 
         pu::ui::Color textclr = pu::ui::Color::FromHex(qapp->GetUIConfigValue<std::string>("text_color", "#e1e1e1ff"));
@@ -34,6 +34,8 @@ namespace ui
 
     void StartupLayout::OnInput(u64 down, u64 up, u64 held, pu::ui::Touch pos)
     {
+        qapp->CommonMenuOnLoop();
+
         if(this->loadmenu)
         {
             this->loadmenu = false;
@@ -41,6 +43,7 @@ namespace ui
             qapp->FadeOut();
             qapp->LoadMenu();
             qapp->FadeIn();
+            qapp->ShowNotification(cfg::GetLanguageString(config.main_lang, config.default_lang, "menu_quick_info"), 3000); // Show for 3s
         }
     }
 

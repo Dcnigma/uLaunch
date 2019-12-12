@@ -2,7 +2,7 @@
 #include <util/util_Misc.hpp>
 
 extern u8 *app_buf;
-extern cfg::ProcessedTheme theme;
+extern cfg::Theme theme;
 
 namespace ui
 {
@@ -13,13 +13,7 @@ namespace ui
 
     void QMenuApplication::OnLoad()
     {
-        pu::ui::render::SetDefaultFont(cfg::ProcessedThemeResource(theme, "ui/Font.ttf"));
-
-        am::QMenuCommandWriter writer(am::QDaemonMessage::GetSuspendedInfo);
-        writer.FinishWrite();
-        am::QMenuCommandResultReader reader;
-        if(reader) this->suspinfo = reader.Read<am::QSuspendedInfo>();
-        reader.FinishRead();
+        pu::ui::render::SetDefaultFont(cfg::GetAssetByTheme(theme, "ui/Font.ttf"));
 
         if(this->IsSuspended())
         {
@@ -27,9 +21,9 @@ namespace ui
             appletGetLastApplicationCaptureImageEx(app_buf, RawRGBAScreenBufferSize, &flag);
         }
 
-        auto [_rc, jui] = util::LoadJSONFromFile(cfg::ProcessedThemeResource(theme, "ui/UI.json"));
+        auto [_rc, jui] = util::LoadJSONFromFile(cfg::GetAssetByTheme(theme, "ui/UI.json"));
         this->uijson = jui;
-        auto [_rc2, jbgm] = util::LoadJSONFromFile(cfg::ProcessedThemeResource(theme, "sound/BGM.json"));
+        auto [_rc2, jbgm] = util::LoadJSONFromFile(cfg::GetAssetByTheme(theme, "sound/BGM.json"));
         this->bgmjson = jbgm;
         this->bgm_loop = this->bgmjson.value("loop", true);
         this->bgm_fade_in_ms = this->bgmjson.value("fade_in_ms", 1500);
@@ -39,7 +33,7 @@ namespace ui
         pu::ui::Color toastbaseclr = pu::ui::Color::FromHex(GetUIConfigValue<std::string>("toast_base_color", "#282828ff"));
         this->notifToast = pu::ui::extras::Toast::New("...", 20, toasttextclr, toastbaseclr);
 
-        this->bgm = pu::audio::Open(cfg::ProcessedThemeResource(theme, "sound/BGM.mp3"));
+        this->bgm = pu::audio::Open(cfg::GetAssetByTheme(theme, "sound/BGM.mp3"));
 
         this->startupLayout = StartupLayout::New();
         this->menuLayout = MenuLayout::New(app_buf, this->uijson.value("suspended_final_alpha", 80));
@@ -49,35 +43,25 @@ namespace ui
 
         switch(this->stmode)
         {
-            case am::QMenuStartMode::Menu:
-            case am::QMenuStartMode::MenuApplicationSuspended:
-            case am::QMenuStartMode::MenuLaunchFailure:
-            {
-                // Returned from applet/title, QDaemon has the user but we don't, so...
-                am::QMenuCommandWriter writer(am::QDaemonMessage::GetSelectedUser);
-                writer.FinishWrite();
-                am::QMenuCommandResultReader res;
-                this->selected_user = res.Read<u128>();
-                res.FinishRead();
-
+            case am::QMenuStartMode::StartupScreen:
+                this->LoadStartupMenu();
+                break;
+            default:
                 this->StartPlayBGM();
                 this->LoadMenu();
-                break;
-            }
-            default:
-                this->LoadStartupMenu();
                 break;
         }
     }
 
-    void QMenuApplication::SetStartMode(am::QMenuStartMode mode)
+    void QMenuApplication::SetInformation(am::QMenuStartMode mode, am::QDaemonStatus status)
     {
         this->stmode = mode;
+        memcpy(&this->status, &status, sizeof(status));
     }
 
     void QMenuApplication::LoadMenu()
     {
-        this->menuLayout->SetUser(this->selected_user);
+        this->menuLayout->SetUser(this->status.selected_user);
         this->LoadLayout(this->menuLayout);
     }
 
@@ -113,27 +97,29 @@ namespace ui
 
     bool QMenuApplication::IsTitleSuspended()
     {
-        return (this->suspinfo.app_id != 0);
+        return (this->status.app_id > 0);
     }
 
     bool QMenuApplication::IsHomebrewSuspended()
     {
-        return strlen(this->suspinfo.input.nro_path);
+        return strlen(this->status.input.nro_path);
     }
 
-    std::string QMenuApplication::GetSuspendedHomebrewPath()
+    bool QMenuApplication::EqualsSuspendedHomebrewPath(std::string path)
     {
-        return this->suspinfo.input.nro_path;
+        return (strcasecmp(this->status.input.nro_path, path.c_str()) == 0);
     }
 
     u64 QMenuApplication::GetSuspendedApplicationId()
     {
-        return this->suspinfo.app_id;
+        return this->status.app_id;
     }
 
     void QMenuApplication::NotifyEndSuspended()
     {
-        this->suspinfo = {};
+        // Blanking the whole status would also blank the selected user...
+        this->status.input = {};
+        this->status.app_id = 0;
     }
 
     bool QMenuApplication::LaunchFailed()
@@ -170,11 +156,11 @@ namespace ui
         writer.Write<u128>(user_id);
         writer.FinishWrite();
 
-        this->selected_user = user_id;
+        memcpy(&this->status.selected_user, &user_id, sizeof(user_id));
     }
 
     u128 QMenuApplication::GetSelectedUser()
     {
-        return this->selected_user;
+        return this->status.selected_user;
     }
 }

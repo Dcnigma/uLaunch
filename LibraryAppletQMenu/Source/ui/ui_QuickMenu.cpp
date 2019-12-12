@@ -48,6 +48,11 @@ namespace ui
     {
         return 720;
     }
+
+    void QuickMenu::Toggle()
+    {
+        this->on = !this->on;
+    }
     
     bool QuickMenu::IsOn()
     {
@@ -87,7 +92,7 @@ namespace ui
             }
         }
 
-        Drawer->RenderRectangleFill({ 50, 50, 50, bgalpha }, 0, 0, 1280, 720);
+        Drawer->RenderRectangleFill({ 50, 50, 50, (u8)bgalpha }, 0, 0, 1280, 720);
 
         auto dir = this->GetCurrentDirection();
         Drawer->RenderTexture(this->nmain, MainItemX, MainItemY, { fgalpha, MainItemSize, MainItemSize, -1 });
@@ -95,12 +100,16 @@ namespace ui
         for(auto &[direction, subitem]: this->item_map)
         {
             auto [x, y] = this->ComputePositionForDirection(direction);
-
             auto tex = subitem.nicon;
-            if(direction == dir) SDL_SetTextureColorMod(tex, 200, 200, 255);
+            auto texw = pu::ui::render::GetTextureWidth(tex);
+            auto texh = pu::ui::render::GetTextureHeight(tex);
+            x += (SubItemsSize - texw) / 2;
+            y += (SubItemsSize - texh) / 2;
+
+            if(direction == dir) SDL_SetTextureColorMod(tex, 150, 150, 200);
             else SDL_SetTextureColorMod(tex, 255, 255, 255);
 
-            Drawer->RenderTexture(tex, x, y, { fgalpha, SubItemsSize, SubItemsSize, -1 });
+            Drawer->RenderTexture(tex, x, y, { fgalpha, texw, texh, -1 });
         }
     }
 
@@ -126,12 +135,17 @@ namespace ui
         }
         else
         {
-            auto prevon = this->on;
-            this->on = false;
-            if(Held & KEY_LSTICK) this->on = true;
-            if(Held & KEY_RSTICK) this->on = true;
-
-            if(prevon && !this->on) this->off_wait = prevheld;
+            if(this->on)
+            {
+                if(Down & KEY_A) this->Toggle();
+                else if(Down & KEY_B)
+                {
+                    prevheld = 0;
+                    this->Toggle();
+                }
+            }
+            
+            if(!this->on && (this->bgalpha > 0) && (this->fgalpha > 0)) this->off_wait = prevheld;
         }
     }
 
@@ -139,40 +153,20 @@ namespace ui
     {
         QuickMenuDirection dir = QuickMenuDirection::None;
 
-        if(this->lastheld & KEY_RSTICK)
+        if(this->lastheld & KEY_UP)
         {
-            if(this->lastheld & KEY_RSTICK_UP)
-            {
-                dir = QuickMenuDirection::Up;
-                if(this->lastheld & KEY_RSTICK_LEFT) dir = QuickMenuDirection::UpLeft;
-                else if(this->lastheld & KEY_RSTICK_RIGHT) dir = QuickMenuDirection::UpRight;
-            }
-            else if(this->lastheld & KEY_RSTICK_DOWN)
-            {
-                dir = QuickMenuDirection::Down;
-                if(this->lastheld & KEY_RSTICK_LEFT) dir = QuickMenuDirection::DownLeft;
-                else if(this->lastheld & KEY_RSTICK_RIGHT) dir = QuickMenuDirection::DownRight;
-            }
-            else if(this->lastheld & KEY_RSTICK_LEFT) dir = QuickMenuDirection::Left;
-            else if(this->lastheld & KEY_RSTICK_RIGHT) dir = QuickMenuDirection::Right;
+            dir = QuickMenuDirection::Up;
+            if(this->lastheld & KEY_LEFT) dir = QuickMenuDirection::UpLeft;
+            else if(this->lastheld & KEY_RIGHT) dir = QuickMenuDirection::UpRight;
         }
-        else if(this->lastheld & KEY_LSTICK)
+        else if(this->lastheld & KEY_DOWN)
         {
-            if(this->lastheld & KEY_LSTICK_UP)
-            {
-                dir = QuickMenuDirection::Up;
-                if(this->lastheld & KEY_LSTICK_LEFT) dir = QuickMenuDirection::UpLeft;
-                else if(this->lastheld & KEY_LSTICK_RIGHT) dir = QuickMenuDirection::UpRight;
-            }
-            else if(this->lastheld & KEY_LSTICK_DOWN)
-            {
-                dir = QuickMenuDirection::Down;
-                if(this->lastheld & KEY_LSTICK_LEFT) dir = QuickMenuDirection::DownLeft;
-                else if(this->lastheld & KEY_LSTICK_RIGHT) dir = QuickMenuDirection::DownRight;
-            }
-            else if(this->lastheld & KEY_LSTICK_LEFT) dir = QuickMenuDirection::Left;
-            else if(this->lastheld & KEY_LSTICK_RIGHT) dir = QuickMenuDirection::Right;
+            dir = QuickMenuDirection::Down;
+            if(this->lastheld & KEY_LEFT) dir = QuickMenuDirection::DownLeft;
+            else if(this->lastheld & KEY_RIGHT) dir = QuickMenuDirection::DownRight;
         }
+        else if(this->lastheld & KEY_LEFT) dir = QuickMenuDirection::Left;
+        else if(this->lastheld & KEY_RIGHT) dir = QuickMenuDirection::Right;
 
         return dir;
     }
@@ -214,6 +208,8 @@ namespace ui
             case QuickMenuDirection::DownRight:
                 x += (MainItemSize - CommonAreaSize);
                 y += (MainItemSize - CommonAreaSize);
+                break;
+            default:
                 break;
         }
         return std::make_tuple(x, y);

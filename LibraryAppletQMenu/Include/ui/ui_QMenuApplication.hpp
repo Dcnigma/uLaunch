@@ -17,7 +17,7 @@ namespace ui
 
             void OnLoad() override;
 
-            void SetStartMode(am::QMenuStartMode mode);
+            void SetInformation(am::QMenuStartMode mode, am::QDaemonStatus status);
             void LoadMenu();
             void LoadStartupMenu();
             void LoadThemeMenu();
@@ -27,7 +27,7 @@ namespace ui
             bool IsSuspended();
             bool IsTitleSuspended();
             bool IsHomebrewSuspended();
-            std::string GetSuspendedHomebrewPath();
+            bool EqualsSuspendedHomebrewPath(std::string path);
             u64 GetSuspendedApplicationId();
             void NotifyEndSuspended();
             bool LaunchFailed();
@@ -78,6 +78,8 @@ namespace ui
 
             void SetSelectedUser(u128 user_id);
             u128 GetSelectedUser();
+
+            void CommonMenuOnLoop();
         private:
             am::QMenuStartMode stmode;
             StartupLayout::Ref startupLayout;
@@ -86,8 +88,7 @@ namespace ui
             SettingsMenuLayout::Ref settingsMenuLayout;
             LanguagesMenuLayout::Ref languagesMenuLayout;
             pu::ui::extras::Toast::Ref notifToast;
-            am::QSuspendedInfo suspinfo;
-            u128 selected_user;
+            am::QDaemonStatus status;
             JSON uijson;
             JSON bgmjson;
             bool bgm_loop;
@@ -95,4 +96,9 @@ namespace ui
             u32 bgm_fade_out_ms;
             pu::audio::Music bgm;
     };
+
+    inline void QMenuApplication::CommonMenuOnLoop() // Stuff all menus should handle (currently just connected controllers)
+    {
+        if(!hidIsControllerConnected(CONTROLLER_HANDHELD) && !hidIsControllerConnected(CONTROLLER_PLAYER_1)) this->menuLayout->HandleControllerAppletOpen();
+    }
 }

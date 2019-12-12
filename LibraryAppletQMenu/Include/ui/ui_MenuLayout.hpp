@@ -5,6 +5,7 @@
 #include <ui/ui_SideMenu.hpp>
 #include <ui/ui_RawData.hpp>
 #include <ui/ui_ClickableImage.hpp>
+#include <ui/ui_QuickMenu.hpp>
 #include <cfg/cfg_Config.hpp>
 
 namespace ui
@@ -20,12 +21,13 @@ namespace ui
             void menu_OnSelected(u32 index);
             void menuToggle_Click();
             void logo_Click();
-            void logoamiibo_Click();   //AMIIBO
-            void logoFTP_Click();      //FTPD
+            // Add ftp and amiibo ftp_Click amiibo_Click
+            void ftp_Click();
+            void amiibo_Click();
             void settings_Click();
             void themes_Click();
             void users_Click();
-            void web_Click();
+            void controller_Click();
             void MoveFolder(std::string name, bool fade);
             void OnInput(u64 down, u64 up, u64 held, pu::ui::Touch pos);
             void SetUser(u128 user);
@@ -35,6 +37,10 @@ namespace ui
             void HandleWebPageOpen();
             void HandleSettingsMenu();
             void HandleThemesMenu();
+            void HandleControllerAppletOpen();
+            void HandleShowHelp();
+            void HandleOpenAlbum();
+            void HandlePowerDialog();
             void HandleMultiselectMoveToFolder(std::string folder);
             void StopMultiselect();
         private:
@@ -45,12 +51,11 @@ namespace ui
             pu::ui::elm::Image::Ref topMenuImage;
             pu::ui::elm::Image::Ref connIcon;
             ClickableImage::Ref users;
-            ClickableImage::Ref web;
+            ClickableImage::Ref controller;
             ClickableImage::Ref logo;
-            // added 2 more logo's
-            ClickableImage::Ref logoamiibo;
-            ClickableImage::Ref logoFTP;
-            //
+            //ftp and amiibo
+            ClickableImage::Ref ftp;
+            ClickableImage::Ref amiibo;
             pu::ui::elm::TextBlock::Ref timeText;
             pu::ui::elm::TextBlock::Ref batteryText;
             pu::ui::elm::Image::Ref batteryIcon;
@@ -64,6 +69,7 @@ namespace ui
             pu::ui::elm::TextBlock::Ref itemVersion;
             pu::ui::elm::Image::Ref bannerImage;
             ClickableImage::Ref menuToggle;
+            QuickMenu::Ref quickMenu;
             std::string curfolder;
             std::chrono::steady_clock::time_point tp;
             bool warnshown;

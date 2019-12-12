@@ -22,7 +22,7 @@ ui::QMenuApplication::Ref qapp;
 cfg::TitleList list;
 std::vector<cfg::TitleRecord> homebrew;
 cfg::Config config;
-cfg::ProcessedTheme theme;
+cfg::Theme theme;
 u8 *app_buf;
 
 namespace qmenu
@@ -38,12 +38,9 @@ namespace qmenu
 
         am::QMenu_InitializeDaemonService();
 
-        // Load menu config
+        // Load menu config and theme
         config = cfg::EnsureConfig();
-
-        // Load theme
-        auto th = cfg::LoadTheme(config.theme_name);
-        theme = cfg::ProcessTheme(th);
+        theme = cfg::LoadTheme(config.theme_name);
     }
 
     void Exit()
@@ -64,39 +61,50 @@ int main()
     auto [rc, smode] = am::QMenu_ProcessInput();
     if(R_SUCCEEDED(rc))
     {
-        app_buf = new u8[RawRGBAScreenBufferSize]();
-        qmenu::Initialize();
-        auto [_rc, menulist] = cfg::LoadTitleList(true);
-        list = menulist;
+        am::QDaemonStatus status = {};
+        
+        // Information block sent as an extra storage to QMenu.
+        am::QLibraryAppletReadStorage(&status, sizeof(status));
+
+        // First read sent storages, then init the renderer (UI, which also inits RomFs), then init everything else
 
         if(smode != am::QMenuStartMode::Invalid)
         {
             auto renderer = pu::ui::render::Renderer::New(SDL_INIT_EVERYTHING, pu::ui::render::RendererInitOptions::RendererEverything, pu::ui::render::RendererHardwareFlags);
             qapp = ui::QMenuApplication::New(renderer);
 
+            // Renderer initializes RomFs, so we start initializing the rest of stuff here!
+            app_buf = new u8[RawRGBAScreenBufferSize]();
+            qmenu::Initialize();
+            
+            list = cfg::LoadTitleList(true);
+
             // Get system language and load translations (default one if not present)
             u64 lcode = 0;
             setGetLanguageCode(&lcode);
             std::string syslang = (char*)&lcode;
             auto lpath = cfg::GetLanguageJSONPath(syslang);
-            auto [_rc, defjson] = util::LoadJSONFromFile(CFG_LANG_DEFAULT);
-            config.default_lang = defjson;
-            config.main_lang = defjson;
-            if(fs::ExistsFile(lpath))
+            auto [rc1, defjson] = util::LoadJSONFromFile(CFG_LANG_DEFAULT);
+            if(R_SUCCEEDED(rc1))
             {
-                auto [_rc2, ljson] = util::LoadJSONFromFile(lpath);
-                config.main_lang = ljson;
+                config.default_lang = defjson;
+                config.main_lang = defjson;
+                if(fs::ExistsFile(lpath))
+                {
+                    auto [rc2, ljson] = util::LoadJSONFromFile(lpath);
+                    if(R_SUCCEEDED(rc2)) config.main_lang = ljson;
+                }
             }
 
-            qapp->SetStartMode(smode);
+            qapp->SetInformation(smode, status);
             qapp->Prepare();
             
             if(smode == am::QMenuStartMode::MenuApplicationSuspended) qapp->Show();
             else qapp->ShowWithFadeIn();
-        }
 
-        delete[] app_buf;
-        qmenu::Exit();
+            delete[] app_buf;
+            qmenu::Exit();
+        }
     }
 
     return 0;
