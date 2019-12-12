@@ -6,7 +6,6 @@ Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:
             "ftp_icon": {  
       "x": 40,  
       "y": 80,  
-      "visible": true  
     },  
 
 for now you can't change the icon. But will change this in the future ;-)        
