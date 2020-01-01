@@ -5,3 +5,6 @@ Based on libctru.
 
 # Install instructions
 See [Switchbrew](https://switchbrew.org/wiki/Setting_up_Development_Environment).
+
+
+Please clone form source because this is not complete! 
