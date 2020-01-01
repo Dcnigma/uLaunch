@@ -4,6 +4,10 @@
 I made a mod for myself and everybody that wants to try it.  
 Just playing with the code.
 
+New 0.2.1 came out so I wanted to update my version.
+<img src="Screenshots/s12.jpg" alt="drawing" width="400"/> <img src="Screenshots/s13.jpg" alt="drawing" width="400"/>   
+Find the binary under the release button for anyone that want to try this version.
+
 Just made it work under 0.2   
 <img src="Screenshots/s9.jpg" alt="drawing" width="400"/> <img src="Screenshots/s10.jpg" alt="drawing" width="400"/>   
 Skinners can move the icons if they use ftp_icon amiibo_icon in the json file:  
