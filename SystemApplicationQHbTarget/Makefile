@@ -19,9 +19,9 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	../Common/Source ../Common/Source/am ../Common/Source/hb Source
+SOURCES		:=	../Common/source ../Common/source/am ../Common/source/hb source
 DATA		:=	data
-INCLUDES	:=	../Common/Include Include
+INCLUDES	:=	../Common/include include
 EXEFS_SRC	:=	exefs_src
 
 #---------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DQ_VERSION=\"$(Q_VERSION)\"
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fexceptions -std=gnu++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
@@ -45,7 +45,7 @@ LIBS	:= -lnx
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(LIBNX)
+LIBDIRS	:= $(PORTLIBS) $(CURDIR)/../master-libnx/nx
 
 
 #---------------------------------------------------------------------------------
